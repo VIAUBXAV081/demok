@@ -1,6 +1,6 @@
 # FullStack Blog Demo
 
-This demo showcases a simple full-stack application integrated with OpenAI to generate post suggestions based on the provided title.
+This demo showcases a simple full-stack application integrated with OpenAI and DeepL.
 
 # Configuration
 
