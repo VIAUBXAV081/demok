@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Blog.Server.Database;
+using Blog.Server.Database.Models;
 using Blog.Server.DTOs;
-using Data;
-using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Server.Repositories

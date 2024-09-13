@@ -4,6 +4,7 @@ import PostService from "../services/PostService";
 import { Formik } from "formik";
 import * as yup from 'yup';
 import { useNavigate } from "react-router-dom";
+import SuggestionService from "../services/SuggestionService";
 
 function CreatePage() {
 
@@ -26,8 +27,8 @@ function CreatePage() {
     }
 
     async function suggestPost(title: string, setFieldValue: (field: string, value: string) => void) {
-        const service = new PostService();
-        const suggestion = await service.suggest({ title: title });
+        const service = new SuggestionService();
+        const suggestion = await service.get({ title: title });
         setFieldValue("content", suggestion.content);
     }
 

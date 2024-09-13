@@ -9,7 +9,7 @@ function HomePage() {
 
           <div className="jumbotron mt-4 bg-body-secondary p-3 rounded">
               <h1 className="display-4">Home</h1>
-              <p className="lead">Explore how to build a simple full-stack application with .NET and React, seamlessly integrating OpenAI's ChatGPT API to enhance your app with AI-powered conversational capabilities.</p>
+              <p className="lead">Explore how to build a simple full-stack application with .NET and React, seamlessly integrating OpenAI's Completion and DeepL's Translation API to enhance your app with AI-powered suggestion and translation capabilities.</p>
           </div>
 
           <Row className="mt-4">

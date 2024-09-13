@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Blog.Server.Database.Models;
 using Blog.Server.DTOs;
-using Data.Models;
 
 namespace Blog.Server
 {

@@ -12,3 +12,9 @@ export interface NewPost {
 export interface NewPostIdea {
     title: string;
 }
+
+export interface PostTranslation {
+    title: string;
+    content: string;
+}
+

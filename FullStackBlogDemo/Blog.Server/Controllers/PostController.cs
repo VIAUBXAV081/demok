@@ -1,6 +1,6 @@
 using Blog.Server.DTOs;
 using Blog.Server.Repositories;
-using Blog.Server.Services;
+using Blog.Server.Services.Suggestion;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Server.Controllers
@@ -11,31 +11,31 @@ namespace Blog.Server.Controllers
     {
         private readonly IPostRepository _postRepository;
         private readonly ILogger<PostController> _logger;
-        private readonly ISuggestionService _suggestionService;
 
-
-        public PostController(IPostRepository postRepository, ILogger<PostController> logger, ISuggestionService suggestionService)
+        public PostController(IPostRepository postRepository, ILogger<PostController> logger)
         {
             _postRepository = postRepository;
             _logger = logger;
-            _suggestionService = suggestionService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PostDto>>> Index()
         {
+            _logger.LogInformation("Getting all posts");
             return (await _postRepository.GetPostsAsync()).ToList();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PostDto>> Show(int id)
         {
+            _logger.LogInformation($"Getting post with ID {id}");
             return await _postRepository.GetPostAsync(id);
         }
 
         [HttpPost]
         public async Task<ActionResult<PostDto>> Create([FromBody] NewPostDto post)
         {
+            _logger.LogInformation($"Creating new post with title {post.Title} and content {post.Content}");
             var created = await _postRepository.InsertPostAsync(post);
             return CreatedAtAction(nameof(Show), new { id = created.ID }, created);
         }
@@ -43,20 +43,9 @@ namespace Blog.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
+            _logger.LogInformation($"Deleting post with ID {id}");
             await _postRepository.DeletePostAsync(id);
             return NoContent();
-        }
-
-        [HttpPost]
-        [Route("suggest")]
-        public async Task<ActionResult<PostSuggestionDto>> Suggest([FromBody] NewPostIdeaDto post)
-        {
-            return new PostSuggestionDto
-            {
-                Title = post.Title,
-                Content = await _suggestionService.GetSuggestion(post.Title)
-            };
-
         }
     }
 }

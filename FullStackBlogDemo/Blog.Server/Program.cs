@@ -1,7 +1,8 @@
 
+using Blog.Server.Database;
 using Blog.Server.Repositories;
 using Blog.Server.Services;
-using Data;
+using Blog.Server.Services.Suggestion;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Server
@@ -29,6 +30,7 @@ namespace Blog.Server
             // Add the repository to the container
             builder.Services.AddTransient<IPostRepository, PostRepository>();
             builder.Services.AddTransient<ISuggestionService, SuggestionService>();
+            builder.Services.AddTransient<ITranslationService, TranslationService>();
 
             var app = builder.Build();
 

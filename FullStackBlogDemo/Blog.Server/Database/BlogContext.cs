@@ -1,7 +1,7 @@
-﻿using Data.Models;
+﻿using Blog.Server.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Data
+namespace Blog.Server.Database
 {
     public class BlogContext : DbContext
     {
