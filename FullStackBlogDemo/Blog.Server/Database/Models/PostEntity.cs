@@ -1,6 +1,6 @@
 ﻿namespace Blog.Server.Database.Models
 {
-    public class Post
+    public class PostEntity
     {
         public int ID { get; set; }
         public string? Title { get; set; }

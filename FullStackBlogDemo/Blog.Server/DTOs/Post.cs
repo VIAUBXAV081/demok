@@ -1,6 +1,6 @@
 ﻿namespace Blog.Server.DTOs
 {
-    public record PostDto
+    public record Post
     {
         public int? ID { get; init; }
         public string? Title { get; init; }

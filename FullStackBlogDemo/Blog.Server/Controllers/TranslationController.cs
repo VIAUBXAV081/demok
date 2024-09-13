@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Server.Controllers
 {
+    /// <summary>
+    /// Translate posts
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TranslationController : ControllerBase
@@ -18,8 +21,17 @@ namespace Blog.Server.Controllers
             _translationService = translationService;
         }
 
+        /// <summary>
+        /// Translate a post
+        /// </summary>
+        /// <param name="post">The details of the post</param>
+        /// <returns>The translated details of the post</returns>
+        /// <response code="200">Listing successful</response>
+        /// <response code="400">Bad request</response>
         [HttpPost]
-        public async Task<ActionResult<PostTranslationDto>> Translate([FromBody] PostTranslationRequestDto post)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PostTranslation>> Translate([FromBody] PostTranslationRequest post)
         {
             var translations = await _translationService.Translate(new List<string>
             {
@@ -28,7 +40,7 @@ namespace Blog.Server.Controllers
             }, Languages.EN, post.TargetLang);
 
 
-            return new PostTranslationDto
+            return new PostTranslation
             {
                 Title = translations[0],
                 Content = translations[1]

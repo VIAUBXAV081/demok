@@ -16,7 +16,7 @@ namespace Blog.Server.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
 
-            modelBuilder.Entity("Blog.Server.Database.Models.Post", b =>
+            modelBuilder.Entity("Blog.Server.Database.Models.PostEntity", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()

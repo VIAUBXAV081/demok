@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Blog.Server.Database;
 using Blog.Server.Database.Models;
 using Blog.Server.DTOs;
+using Blog.Server.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Server.Repositories
@@ -10,9 +11,9 @@ namespace Blog.Server.Repositories
     public interface IPostRepository
     {
         Task DeletePostAsync(int postId);
-        Task<PostDto> GetPostAsync(int postId);
-        Task<IEnumerable<PostDto>> GetPostsAsync();
-        Task<PostDto> InsertPostAsync(NewPostDto newPost);
+        Task<Post> GetPostAsync(int postId);
+        Task<IEnumerable<Post>> GetPostsAsync();
+        Task<Post> InsertPostAsync(NewPost newPost);
     }
 
     public class PostRepository : IPostRepository
@@ -26,39 +27,32 @@ namespace Blog.Server.Repositories
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<PostDto>> GetPostsAsync()
+        public async Task<IEnumerable<Post>> GetPostsAsync()
         {
             return await _context.Posts
-                .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
+                .ProjectTo<Post>(_mapper.ConfigurationProvider)
                 .ToListAsync();
         }
 
-        public async Task<PostDto> GetPostAsync(int postId)
+        public async Task<Post> GetPostAsync(int postId)
         {
             return await _context.Posts
-                .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
+                .ProjectTo<Post>(_mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync(p => p.ID == postId)
-                ?? throw new Exception($"Post not found with ID {postId}!");
+                ?? throw new EntityNotFoundException($"Post not found with ID {postId}!");
         }
 
-        public async Task<PostDto> InsertPostAsync(NewPostDto newPost)
+        public async Task<Post> InsertPostAsync(NewPost newPost)
         {
-            var efPost = _mapper.Map<Post>(newPost);
+            var efPost = _mapper.Map<PostEntity>(newPost);
             _context.Posts.Add(efPost);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
+            await _context.SaveChangesAsync();
             return await GetPostAsync(efPost.ID);
         }
 
         public async Task DeletePostAsync(int postId)
         {
-            _context.Posts.Remove(new Post { ID = postId });
+            _context.Posts.Remove(new PostEntity { ID = postId });
             try
             {
                 await _context.SaveChangesAsync();
@@ -66,7 +60,7 @@ namespace Blog.Server.Repositories
             catch (DbUpdateException)
             {
                 if (!await _context.Posts.AnyAsync(p => p.ID == postId))
-                    throw new Exception($"Post not found with ID {postId}!");
+                    throw new EntityNotFoundException($"Post not found with ID {postId}!");
                 else
                     throw;
             }

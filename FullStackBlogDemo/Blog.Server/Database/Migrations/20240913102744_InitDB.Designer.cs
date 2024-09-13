@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Server.Database.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20240913093823_InitDB")]
+    [Migration("20240913102744_InitDB")]
     partial class InitDB
     {
         /// <inheritdoc />
@@ -19,7 +19,7 @@ namespace Blog.Server.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
 
-            modelBuilder.Entity("Blog.Server.Database.Models.Post", b =>
+            modelBuilder.Entity("Blog.Server.Database.Models.PostEntity", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()

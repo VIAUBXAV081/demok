@@ -8,10 +8,10 @@ namespace Blog.Server
     {
         public ApiProfile()
         {
-            CreateMap<Post, PostDto>().ReverseMap();
-            CreateMap<Post, NewPostDto>().ReverseMap();
-            CreateMap<Post, NewPostIdeaDto>().ReverseMap();
-            CreateMap<Post, PostSuggestionDto>().ReverseMap();
+            CreateMap<PostEntity, Post>().ReverseMap();
+            CreateMap<PostEntity, NewPost>().ReverseMap();
+            CreateMap<PostEntity, NewPostIdea>().ReverseMap();
+            CreateMap<PostEntity, PostSuggestion>().ReverseMap();
         }
     }
 }
