@@ -5,12 +5,15 @@ import type Post from "../interfaces/Post";
 import PostFull from "../components/PostFull";
 import PostService from "../services/PostService";
 import RecentPosts from "../components/RecentPosts";
+import TranslationSelector from "../components/TranslationSelector";
+import TranslationService, { TranslationLanguage } from "../services/TranslationService";
 
 function PostPage() {
 
     const params = useParams() as { id: string }
 
     const [post, setPost] = useState<Post>();
+    const [originalPost, setOriginalPost] = useState<Post>();
 
     const [show, setShow] = useState(false);
 
@@ -20,6 +23,7 @@ function PostPage() {
         const service = new PostService();
         const postId = parseInt(params.id);
         const data = await service.getById(postId);
+        setOriginalPost(data);
         setPost(data);
     }, [params]);
 
@@ -36,6 +40,17 @@ function PostPage() {
 
     const handleModalClose = () => setShow(false);
     const handleModalShow = () => setShow(true);
+
+    async function handleLanguageChange(lang: TranslationLanguage|null) {
+        if (lang === null) {
+            setPost(originalPost);
+            return;
+        }
+
+        const service = new TranslationService();
+        const translated = await service.get({title: originalPost?.title ?? "", content: originalPost?.content ?? ""}, lang);
+        setPost({ id: originalPost?.id ?? 0, title: translated.title, content: translated.content});
+    }
 
     return (
         <Container>
@@ -56,6 +71,7 @@ function PostPage() {
 
                 <Col md="3">
                     <RecentPosts />
+                    <TranslationSelector onLanguageChange={handleLanguageChange} />
                 </Col>
             </Row>
 

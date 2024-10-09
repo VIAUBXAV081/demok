@@ -1,0 +1,6 @@
+@Blog.Server_HostAddress = http://localhost:5223
+
+GET {{Blog.Server_HostAddress}}/api/
+Accept: application/json
+
+###

@@ -1,6 +1,9 @@
+
 using Blog.Server.Database;
 using Blog.Server.Exceptions;
 using Blog.Server.Repositories;
+using Blog.Server.Services;
+using Blog.Server.Services.Suggestion;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -51,6 +54,8 @@ namespace Blog.Server
 
             // Add the repository to the container
             builder.Services.AddTransient<IPostRepository, PostRepository>();
+            builder.Services.AddTransient<ISuggestionService, SuggestionService>();
+            builder.Services.AddTransient<ITranslationService, TranslationService>();
 
             // Add ProblemDetails middleware
             builder.Services.AddProblemDetails(options =>

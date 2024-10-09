@@ -10,6 +10,8 @@ namespace Blog.Server
         {
             CreateMap<PostEntity, Post>().ReverseMap();
             CreateMap<PostEntity, NewPost>().ReverseMap();
+            CreateMap<PostEntity, NewPostIdea>().ReverseMap();
+            CreateMap<PostEntity, PostSuggestion>().ReverseMap();
         }
     }
 }

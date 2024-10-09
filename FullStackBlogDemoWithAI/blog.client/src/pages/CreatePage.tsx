@@ -4,6 +4,7 @@ import PostService from "../services/PostService";
 import { Formik } from "formik";
 import * as yup from 'yup';
 import { useNavigate } from "react-router-dom";
+import SuggestionService from "../services/SuggestionService";
 
 function CreatePage() {
 
@@ -25,13 +26,19 @@ function CreatePage() {
         navigate('/post/' + created.id);
     }
 
+    async function suggestPost(title: string, setFieldValue: (field: string, value: string) => void) {
+        const service = new SuggestionService();
+        const suggestion = await service.get({ title: title });
+        setFieldValue("content", suggestion.content);
+    }
+
     return (
 
         <Container>
             <h1 className="my-4">Create new post</h1>
 
             <Formik onSubmit={createPost} initialValues={initialValues} validationSchema={validationSchema}>
-                {({ handleSubmit, handleChange, values, touched, errors}) => (
+                {({ handleSubmit, handleChange, values, touched, errors, setFieldValue}) => (
                     <Form onSubmit={handleSubmit} noValidate>
                         <Form.Group className="mb-3" controlId="formTitle">
                             <Form.Label>Title</Form.Label>
@@ -66,6 +73,10 @@ function CreatePage() {
                         <div className="d-flex gap-2">
                             <Button variant="secondary" type="submit">
                                 Save
+                            </Button>
+
+                            <Button variant="link" onClick={() => suggestPost(values.title, setFieldValue)} disabled={ !values.title }>
+                                Suggest content <i className="bi bi-magic"></i>
                             </Button>
                         </div>
                     </Form>

@@ -1,0 +1,9 @@
+publish/
+.vs/
+bin/
+obj/
+Blog.Server/appsettings.json
+*.user
+*.db
+*.db-wal
+*.db-shm

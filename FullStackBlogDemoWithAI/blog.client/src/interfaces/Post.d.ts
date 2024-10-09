@@ -9,3 +9,12 @@ export interface NewPost {
     content: string;
 }
 
+export interface NewPostIdea {
+    title: string;
+}
+
+export interface PostTranslation {
+    title: string;
+    content: string;
+}
+

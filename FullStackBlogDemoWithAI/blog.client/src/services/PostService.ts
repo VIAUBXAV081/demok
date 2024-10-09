@@ -1,5 +1,5 @@
 import type Post from "../interfaces/Post";
-import type { NewPost } from "../interfaces/Post";
+import type { NewPost, NewPostIdea } from "../interfaces/Post";
 
 export class PostServiceError extends Error {
     constructor(message: string) {
@@ -32,6 +32,22 @@ export default class PostService {
 
     public async create(post: NewPost): Promise<Post> {
         const response = await fetch('/api/Post/', {
+            method: 'POST',
+            body: JSON.stringify(post),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new PostServiceError(response.statusText);
+        }
+
+        return await response.json();
+    }
+
+    public async suggest(post: NewPostIdea): Promise<Post> {
+        const response = await fetch('/api/Post/suggest', {
             method: 'POST',
             body: JSON.stringify(post),
             headers: {
