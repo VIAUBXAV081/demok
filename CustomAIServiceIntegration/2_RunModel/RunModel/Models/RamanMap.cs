@@ -1,4 +1,5 @@
 ﻿using Microsoft.ML.Data;
+using System.Globalization;
 using System.IO.Compression;
 
 namespace RunModel.Models
@@ -26,7 +27,7 @@ namespace RunModel.Models
                             for (int row = 0; row < 31; row++)
                             {
                                 var line = sr.ReadLine();
-                                var values = line.Split(',').Select(float.Parse).ToArray();
+                                var values = line.Split(',').Select((num) => float.Parse(num, CultureInfo.InvariantCulture)).ToArray();
                                 for (int col = 0; col < 31; col++)
                                 {
                                     map[row, col] = values[col];
