@@ -16,6 +16,7 @@ namespace RunModel
             // Load input file and create prediction
             var input = RamanMap.FromFile(_inputFilePath);
             
+            // Predict
             var prediction = predictor.Predict(input);
 
             // Print prediction
