@@ -54,6 +54,8 @@ namespace Blog.Server
 
             // Add the repository to the container
             builder.Services.AddTransient<IPostRepository, PostRepository>();
+
+            // Add services to the container
             builder.Services.AddTransient<ISuggestionService, SuggestionService>();
             builder.Services.AddTransient<ITranslationService, TranslationService>();
 
