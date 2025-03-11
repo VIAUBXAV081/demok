@@ -4,9 +4,8 @@ namespace RunModel
 {
     internal class Program
     {
-        static string _inputsFolderPath = Path.Combine(Environment.CurrentDirectory, "Inputs");
-        static string _inputFilePath = Path.Combine(_inputsFolderPath, "DR_V01A.rmf");
-        static string _inputModelPath = Path.Combine(_inputsFolderPath, "example_cnn_model.onnx");
+        static string _inputModelPath = Path.Combine(Environment.CurrentDirectory, "Inputs/model.onnx");
+        static string _inputLabelPath = Path.Combine(Environment.CurrentDirectory, "Inputs/labels.json");
 
         static void Main(string[] args)
         {
@@ -14,16 +13,16 @@ namespace RunModel
             var predictor = new Predictor(_inputModelPath);
             
             // Load input file and create prediction
-            var input = RamanMap.FromFile(_inputFilePath);
+            var input = new PenguinData { Data = [39.1f, 18.7f, 181.0f, 3750.0f] };
             
+
             // Predict
             var prediction = predictor.Predict(input);
 
             // Print prediction
-            foreach (var value in prediction.Curve)
-            {
-                Console.WriteLine(value.ToString());
-            }
+            Console.WriteLine(prediction.GetName(_inputLabelPath));
+            
+            // It should output 'Adelie';
         }
     }
 }

@@ -1,15 +1,10 @@
-# Run example prediction in dotnet
+# Példa modell futtatás .NET környezetben
 
-This example app loads a basic CNN model from `onnx` file format and compare prediction with python
+Ez a példaalkalmazás betölt egy egyszerű modellt `onnx` fájlformátumból és azt futtatja
 
-## How to run
+## Használat
 
-- Run the [ModelExport](../ModelExport) example
-- Copy your data to `Inputs` folder from the `../ModelExport/data/models` folder
-    ```bash
-    Inputs
-    ├───example_cnn_model.onnx
-    └───DR_V01A.rmf
-    ```
-- Run application
+- Futtasd [SimpleModel](../1_SimpleModel) mappában található példa szkriptet
+- Másold át az ott létrejövő `data/model.onnx` és `data/datasets/labels.json` fájlokat a projektben található `RunModel/Input` mappába változatlan névvel.
+- Futtasd az alkalmazást
   
