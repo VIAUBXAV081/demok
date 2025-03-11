@@ -17,6 +17,7 @@ dependencies = [
     "scikit-learn (>=1.6.1,<2.0.0)",
     "onnx (>=1.17.0,<2.0.0)",
     "tf2onnx (>=1.16.1,<2.0.0)",
+    "imblearn (>=0.0,<0.1)",
 ]
 
 
@@ -26,3 +27,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"

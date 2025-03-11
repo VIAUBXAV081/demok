@@ -1,100 +1,85 @@
-import os
+import json
 
 import numpy as np
 import onnx
 import tensorflow as tf
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder, Normalizer
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score
 from matplotlib import pyplot as plt
 import tf2onnx
 
-def encode_categorical_values(df, columns):
-	encoder = OneHotEncoder(sparse_output=False)
-	one_hot_encoded = encoder.fit_transform(df[columns])
-	one_hot_df = pd.DataFrame(one_hot_encoded, columns=encoder.get_feature_names_out(columns), dtype=np.uint8)
-	return pd.concat([df.drop(columns,axis=1), one_hot_df], axis=1)
-
-def normalize_numerical_values(df, columns):
-	normalizer = Normalizer()
-	normalized = normalizer.transform(df[columns])
-	normalized_df = pd.DataFrame(normalized, columns=columns, dtype=np.float64)
-	return pd.concat([df.drop(columns,axis=1), normalized_df], axis=1)
-
 def main():
 	# Download dataset
-	dataset_url = 'http://storage.googleapis.com/download.tensorflow.org/data/petfinder-mini.zip'
-	dataser_folder = tf.keras.utils.get_file('petfinder_mini.zip', dataset_url, extract=True, cache_dir='./data')
-	csv_file = os.path.join(dataser_folder, 'petfinder-mini/petfinder-mini.csv')
+	dataset_url = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/refs/heads/master/penguins.csv'
+	csv_file = tf.keras.utils.get_file('penguins.csv', dataset_url, cache_dir='./data')
 	df = pd.read_csv(csv_file)
 
-	# Preprocess dataset
-	## Drop unnecessary description column
-	df.drop(columns=['Description'], inplace=True)
+	# Remove missing data
+	df.dropna(inplace=True, axis=0)
 
-	## Encode categorical values
-	df = encode_categorical_values(df, ['Breed1', 'Color1', 'Color2', 'FurLength', 'Gender', 'Health',
-											   'MaturitySize', 'Sterilized', 'Type', 'Vaccinated'])
+	# Remove unnecessary columns
+	df.drop(columns=['island', 'sex'], inplace=True)
 
-	## Normalize numerical values
-	df = normalize_numerical_values(df, ['Age', 'Fee', 'PhotoAmt'])
+	# Encode categorical columns
+	categorical_columns = ['species']
+	replacement_values = {
+		column: {
+			value: index for index, value in enumerate(df[column].unique())
+		}
+		for column in categorical_columns
+	}
+	df.replace(replacement_values, inplace=True)
 
-	## Convert to tensors
-	labels = df.pop('AdoptionSpeed')
-	_,stat = np.unique(labels, return_counts=True)
-	print(stat)
-	ds = tf.data.Dataset.from_tensor_slices((df, labels)).shuffle(buffer_size=1000)
+	# Extract labels
+	target_column = 'species'
+	labels = df.pop(target_column)
+
+	# Persist labels
+	with open('data/datasets/labels.json', 'w') as f:
+		json.dump(replacement_values, f, indent=4)
+
+	# Convert to tensors
+	ds = tf.data.Dataset.from_tensor_slices((df, labels))
+	ds = ds.shuffle(500, seed=42)
 
 	# Split dataset to 80%-10%-10%
 	number_of_samples = len(df)
 	number_of_train_samples = int(number_of_samples * 0.8)
-	number_of_val_samples = int(number_of_samples * 0.1) + 1
+	number_of_val_samples = int(number_of_samples * 0.1)+1
 	number_of_test_samples = number_of_samples - number_of_train_samples - number_of_val_samples
+	batch_size = 16
 
-	print(number_of_train_samples, 'training examples')
-	print(number_of_val_samples, 'validation examples')
-	print(number_of_test_samples, 'test examples')
-
-	number_of_inputs = len(df.columns)
-	number_of_outputs = labels.max() + 1
-	batch_size = 256
-	steps_per_epochs = number_of_train_samples // batch_size
-	print(number_of_inputs, 'input features')
-	print(number_of_outputs, 'output features')
+	print('Training examples:', number_of_train_samples)
+	print('Validation examples:', number_of_val_samples)
+	print('Test examples:', number_of_test_samples)
+	print('Batch size:', batch_size)
 
 	ds_train = ds.take(number_of_train_samples).batch(batch_size)
 	ds_val = ds.skip(number_of_train_samples).take(number_of_val_samples).batch(batch_size)
-	ds_test = ds.skip(number_of_train_samples + number_of_val_samples)
+	ds_test = ds.skip(number_of_train_samples + number_of_val_samples).batch(batch_size)
+
+	# Define number of inputs and outputs
+	number_of_inputs = len(df.columns)
+	number_of_outputs = int(labels.max() + 1)
+	print('Input features:',number_of_inputs)
+	print('Output features:', number_of_outputs)
+
+	# Create preprocessor layer
+	train_features = np.array([feature.numpy() for feature, _ in ds_train.unbatch()])
+	normalization_layer = tf.keras.layers.Normalization()
+	normalization_layer.adapt(train_features)
 
 	# Create model
 	model = tf.keras.models.Sequential([
 		tf.keras.layers.Input(shape=(number_of_inputs,)),
-
-		tf.keras.layers.Dense(256, activation='relu'),
-		tf.keras.layers.BatchNormalization(),
+		normalization_layer,
+		tf.keras.layers.Dense(8, activation='relu'),
 		tf.keras.layers.Dropout(0.3),
-
-		tf.keras.layers.Dense(128, activation='relu'),
-		tf.keras.layers.BatchNormalization(),
-		tf.keras.layers.Dropout(0.3),
-
-		tf.keras.layers.Dense(64, activation='relu'),
-		tf.keras.layers.BatchNormalization(),
-		tf.keras.layers.Dropout(0.3),
-
-		tf.keras.layers.Dense(32, activation='relu'),
-		tf.keras.layers.BatchNormalization(),
-		tf.keras.layers.Dropout(0.3),
-
-		tf.keras.layers.Dense(16, activation='relu'),
-		tf.keras.layers.BatchNormalization(),
-		tf.keras.layers.Dropout(0.3),
-
-		tf.keras.layers.Dense(number_of_outputs),
+		tf.keras.layers.Dense(number_of_outputs, activation='softmax'),
 	])
 
 	model.compile(
-		optimizer='adam',
+		optimizer=tf.keras.optimizers.SGD(momentum=0.9),
 		loss=tf.keras.losses.SparseCategoricalCrossentropy(),
 		metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
 	)
@@ -104,14 +89,14 @@ def main():
 
 	# Train model
 	model_path = 'data/model.keras'
-	epochs = 1000
-	early_stop_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode="min", patience=15)
+	epochs = 150
+	early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode="min", patience=10)
 	checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(model_path, monitor="val_loss", mode="min",
 															 save_best_only=True,
 															 verbose=1)
 	train_history = model.fit(ds_train,
 							  epochs=epochs,
-							  callbacks=[checkpoint_callback],# early_stop_callback],
+							  callbacks=[checkpoint_callback, early_stopping],
 							  validation_data=ds_val,
 							  )
 
@@ -129,24 +114,26 @@ def main():
 	# Load the best model back
 	model = tf.keras.models.load_model(model_path)
 
-	# Evaluate model
-	results = model.evaluate(ds_test.batch(batch_size))
+	# Evaluate
+	results = model.evaluate(ds_test, verbose=1)
 	print(f'Accuracy: {results[1]*100:.2f}%')
 
 	# Make predictions
-	features = np.array([feature.numpy() for feature, _ in ds_test])
-	true_labels = np.array([label.numpy() for _, label in ds_test])
+	features, true_labels = zip(*[(feature.numpy(), label.numpy()) for feature, label in ds_test.unbatch()])
+	features = np.array(features)
+	true_labels = np.array(true_labels)
 	pred_dist = model.predict(features)
 
 	# Evaluate predictions
-	# th = 0.5
-	# pred_labels = (pred_dist > th).reshape(-1)
 	pred_labels = np.argmax(pred_dist, axis=1)
 	cm = confusion_matrix(true_labels, pred_labels)
+	acc = accuracy_score(true_labels, pred_labels)
 
-	disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+	label_names = replacement_values[target_column].keys()
+	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=label_names)
 	disp.plot(cmap='Blues')
-	plt.title(f'Evaluation (Accuracy: {results[1]*100:.2f}%)')
+	plt.title(f'Evaluation (Accuracy: {acc*100:.2f}%)')
+	fig = plt.gcf()
 	plt.show()
 	fig.savefig('data/results.png')
 
