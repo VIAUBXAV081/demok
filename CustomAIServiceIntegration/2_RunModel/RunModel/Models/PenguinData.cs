@@ -6,6 +6,11 @@ namespace RunModel.Models
     {
         [VectorType(4)]
         [ColumnName(@"Data")]
-        public float[] Data { get; set; }
+        public float[] Data { get => [BillLengthMM, BillDepthMM, FlipperLengthMM, BodyMassG]; }
+
+        public float BillLengthMM { get; set; }
+        public float BillDepthMM { get; set; }
+        public float FlipperLengthMM { get; set; }
+        public float BodyMassG { get; set; }
     }
 }

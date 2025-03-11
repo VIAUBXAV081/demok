@@ -7,8 +7,8 @@ namespace RunModel.Models
 {
     public class PenguinType
     {
-        [ColumnName(@"Type")]
         [VectorType(3)]
+        [ColumnName(@"Type")]
         public float[] Type { get; set; }
 
         public string GetName(string labelNames = null)

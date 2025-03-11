@@ -13,8 +13,12 @@ namespace RunModel
             var predictor = new Predictor(_inputModelPath);
             
             // Load input file and create prediction
-            var input = new PenguinData { Data = [39.1f, 18.7f, 181.0f, 3750.0f] };
-            
+            var input = new PenguinData { 
+                BillLengthMM = 39.1f, 
+                BillDepthMM = 18.7f, 
+                FlipperLengthMM = 181.0f, 
+                BodyMassG = 3750.0f 
+            };
 
             // Predict
             var prediction = predictor.Predict(input);
