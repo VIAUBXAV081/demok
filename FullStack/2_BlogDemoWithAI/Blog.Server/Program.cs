@@ -56,7 +56,8 @@ namespace Blog.Server
             builder.Services.AddTransient<IPostRepository, PostRepository>();
 
             // Add services to the container
-            builder.Services.AddTransient<ISuggestionService, SuggestionService>();
+            // builder.Services.AddTransient<ISuggestionService, SuggestionService>();
+            builder.Services.AddTransient<ISuggestionService, MistralSuggestionService>();
             builder.Services.AddTransient<ITranslationService, TranslationService>();
 
             // Add ProblemDetails middleware
