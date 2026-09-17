@@ -10,6 +10,7 @@ namespace RunModel
         static void Main(string[] args)
         {
             // Init predictor
+            Console.WriteLine("Initializing Palmer Penguin predictor...");
             var predictor = new Predictor(_inputModelPath);
             
             // Load input file and create prediction
@@ -21,10 +22,11 @@ namespace RunModel
             };
 
             // Predict
+            Console.WriteLine($"Predicting with data: {input}");
             var prediction = predictor.Predict(input);
 
             // Print prediction
-            Console.WriteLine(prediction.GetName(_inputLabelPath));
+            Console.WriteLine($"The Penguine is: {prediction.GetName(_inputLabelPath)}");
             
             // It should output 'Adelie';
         }

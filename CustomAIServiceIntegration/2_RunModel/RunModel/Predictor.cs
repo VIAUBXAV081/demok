@@ -23,7 +23,7 @@ namespace RunModel
         {
 
             var estimator = Context.Transforms.ApplyOnnxModel(outputColumnNames: [OutputName], inputColumnNames: [InputName], ModelPath);
-           
+
             IEstimator<ITransformer> pipeline = Context.Transforms.CopyColumns(InputName, nameof(PenguinData.Data))
                 .Append(estimator)
                 .Append(Context.Transforms.CopyColumns(nameof(PenguinType.Type), OutputName));
@@ -38,7 +38,7 @@ namespace RunModel
         public PenguinType Predict(PenguinData input)
         {
             var engine = PredictionEngine.Value;
-            
+
             return engine.Predict(input);
         }
     }

@@ -8,13 +8,14 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_s
 from matplotlib import pyplot as plt
 import tf2onnx
 
+
 def main():
 	# Download dataset
 	dataset_url = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/refs/heads/master/penguins.csv'
 	csv_file = tf.keras.utils.get_file('penguins.csv', dataset_url, cache_dir='./data')
 	df = pd.read_csv(csv_file)
 
-	# Remove missing data
+	# Remove missing data rows
 	df.dropna(inplace=True, axis=0)
 
 	# Remove unnecessary columns
@@ -45,7 +46,7 @@ def main():
 	# Split dataset to 80%-10%-10%
 	number_of_samples = len(df)
 	number_of_train_samples = int(number_of_samples * 0.8)
-	number_of_val_samples = int(number_of_samples * 0.1)+1
+	number_of_val_samples = int(number_of_samples * 0.1) + 1
 	number_of_test_samples = number_of_samples - number_of_train_samples - number_of_val_samples
 	batch_size = 16
 
@@ -61,7 +62,7 @@ def main():
 	# Define number of inputs and outputs
 	number_of_inputs = len(df.columns)
 	number_of_outputs = int(labels.max() + 1)
-	print('Input features:',number_of_inputs)
+	print('Input features:', number_of_inputs)
 	print('Output features:', number_of_outputs)
 
 	# Create preprocessor layer
@@ -116,7 +117,7 @@ def main():
 
 	# Evaluate
 	results = model.evaluate(ds_test, verbose=1)
-	print(f'Accuracy: {results[1]*100:.2f}%')
+	print(f'Accuracy: {results[1] * 100:.2f}%')
 
 	# Make predictions
 	features, true_labels = zip(*[(feature.numpy(), label.numpy()) for feature, label in ds_test.unbatch()])
@@ -132,7 +133,7 @@ def main():
 	label_names = replacement_values[target_column].keys()
 	disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=label_names)
 	disp.plot(cmap='Blues')
-	plt.title(f'Evaluation (Accuracy: {acc*100:.2f}%)')
+	plt.title(f'Evaluation (Accuracy: {acc * 100:.2f}%)')
 	fig = plt.gcf()
 	plt.show()
 	fig.savefig('data/results.png')
@@ -143,6 +144,7 @@ def main():
 	input_signature = [tf.TensorSpec(input.shape, tf.float32, name='input')]
 	onnx_model, _ = tf2onnx.convert.from_keras(model, input_signature)
 	onnx.save(onnx_model, 'data/model.onnx')
+
 
 if __name__ == '__main__':
 	main()

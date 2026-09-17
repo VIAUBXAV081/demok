@@ -12,5 +12,10 @@ namespace RunModel.Models
         public float BillDepthMM { get; set; }
         public float FlipperLengthMM { get; set; }
         public float BodyMassG { get; set; }
+
+        public override string? ToString()
+        {
+            return $"Penguine(BillLengthMM={BillDepthMM};BillDepthMM={BillDepthMM};FlipperLengthMM={FlipperLengthMM};BodyMassG={BodyMassG})";
+        }
     }
 }
