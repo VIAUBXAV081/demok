@@ -56,9 +56,12 @@ namespace Blog.Server
             builder.Services.AddTransient<IPostRepository, PostRepository>();
 
             // Add services to the container
-            // builder.Services.AddTransient<ISuggestionService, SuggestionService>();
-            builder.Services.AddTransient<ISuggestionService, MistralSuggestionService>();
             builder.Services.AddTransient<ITranslationService, TranslationService>();
+
+            // TODO: To switch to Mistral, comment the OpenAI line and uncomment the Mistral line
+            // builder.Services.AddTransient<ISuggestionService, OpenAISuggestionService>();
+            builder.Services.AddTransient<ISuggestionService, MistralSuggestionService>();
+
 
             // Add ProblemDetails middleware
             builder.Services.AddProblemDetails(options =>

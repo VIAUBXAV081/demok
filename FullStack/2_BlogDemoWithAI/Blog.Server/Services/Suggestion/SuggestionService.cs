@@ -2,13 +2,16 @@
 
 namespace Blog.Server.Services.Suggestion
 {
-    public class SuggestionService : ExternalServiceBase<SuggestionRequest, SuggestionResponse>, ISuggestionService
+    public abstract class SuggestionService : ExternalServiceBase<SuggestionRequest, SuggestionResponse>, ISuggestionService
     {
-        private const string _endpoint = "https://api.openai.com/v1/chat/completions";
-        private const string _systemInstruction = "You are a blogger and you want to write a new post. You have a title in mind, but you are not sure what to write about. You want to generate a short, 1 paragraph blog post content without any formating.";
-        private readonly ILogger<SuggestionService> _logger;
+        protected abstract string Endpoint { get; }
+        protected abstract string Model { get; }
 
-        public SuggestionService(IConfiguration configuration, ILogger<SuggestionService> logger) : base(logger, configuration["Services:OpenAi:ApiKey"] ?? "")
+        protected virtual string SystemInstruction => "You are a blogger and you want to write a new post. You have a title in mind, but you are not sure what to write about. You want to generate a short, 1 paragraph blog post content without any formating.";
+
+        private readonly ILogger<OpenAISuggestionService> _logger;
+
+        public SuggestionService(ILogger<OpenAISuggestionService> logger, string apiKey) : base(logger, apiKey)
         {
             _logger = logger;
         }
@@ -17,12 +20,13 @@ namespace Blog.Server.Services.Suggestion
         {
             var request = new SuggestionRequest
             {
+                Model = Model,
                 Messages = new List<SuggestionMessage>
                     {
                         new SuggestionMessage
                         {
                             Role = "system",
-                            Content = _systemInstruction
+                            Content = SystemInstruction
                         },
                         new SuggestionMessage
                         {
@@ -34,7 +38,7 @@ namespace Blog.Server.Services.Suggestion
 
             _logger.LogInformation($"Getting suggestion for {title}");
 
-            var response = await Post(_endpoint, request);
+            var response = await Post(Endpoint, request);
 
             return response?.Choices?[0].Message?.Content ?? "No suggestion";
         }
